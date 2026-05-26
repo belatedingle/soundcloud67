@@ -29,7 +29,6 @@
             width: 120px;
             font-weight: bold;
         }
-        /* Styling for the new Min/Sec inputs */
         .time-inputs {
             display: flex;
             align-items: center;
@@ -47,6 +46,17 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             margin-right: 10px;
+        }
+        input[type="range"] {
+            flex-grow: 1;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .volume-display {
+            width: 40px;
+            text-align: right;
+            font-weight: bold;
+            color: #666;
         }
         button {
             padding: 10px 20px;
@@ -75,6 +85,14 @@
             <label for="trackUrl">Song Link:</label>
             <input type="text" id="trackUrl" placeholder="https://soundcloud.com/artist/song">
             <button id="loadTrackBtn" style="margin-top: 0;">Load</button>
+        </div>
+
+        <div class="section-divider"></div>
+        
+        <div class="input-group">
+            <label for="volumeSlider">Volume:</label>
+            <input type="range" id="volumeSlider" min="0" max="100" value="100">
+            <span id="volumeDisplay" class="volume-display">100%</span>
         </div>
 
         <div class="section-divider"></div>
@@ -117,21 +135,31 @@
             const loadBtn = document.getElementById('loadTrackBtn');
             const updateBtn = document.getElementById('updateLoopBtn');
             const statusMsg = document.getElementById('statusMessage');
+            
+            // Volume Elements
+            const volSlider = document.getElementById('volumeSlider');
+            const volDisplay = document.getElementById('volumeDisplay');
 
             // Helper function to convert min/sec inputs into total seconds
             function getTotalSeconds(minId, secId) {
-                // Use || 0 to fallback to 0 if the user leaves the box blank
                 let minutes = parseFloat(document.getElementById(minId).value) || 0;
                 let seconds = parseFloat(document.getElementById(secId).value) || 0;
                 return (minutes * 60) + seconds;
             }
 
-            // Loop State Initialization
+            // Loop State
             let loopStart = getTotalSeconds('startMin', 'startSec');
             let loopEnd = getTotalSeconds('endMin', 'endSec');
             let isLooping = true;
 
-            // 1. Handle Loading New Tracks
+            // 1. Handle Volume Changes
+            volSlider.addEventListener('input', () => {
+                const currentVolume = volSlider.value;
+                volDisplay.textContent = `${currentVolume}%`;
+                widget.setVolume(currentVolume);
+            });
+
+            // 2. Handle Loading New Tracks
             loadBtn.addEventListener('click', () => {
                 const url = urlInput.value.trim();
                 if (url) {
@@ -141,6 +169,8 @@
                         color: '%23ff5500',
                         callback: function() {
                             statusMsg.textContent = 'Track loaded successfully!';
+                            // Re-apply the current volume to the new track
+                            widget.setVolume(volSlider.value); 
                             setTimeout(() => statusMsg.textContent = '', 3000);
                         }
                     });
@@ -149,9 +179,8 @@
                 }
             });
 
-            // 2. Handle Updating Loop Times
+            // 3. Handle Updating Loop Times
             updateBtn.addEventListener('click', () => {
-                // Calculate total seconds from the new inputs
                 loopStart = getTotalSeconds('startMin', 'startSec');
                 loopEnd = getTotalSeconds('endMin', 'endSec');
                 
@@ -160,8 +189,11 @@
                 setTimeout(() => statusMsg.textContent = '', 3000);
             });
 
-            // 3. Handle the Looping Logic
+            // 4. Handle the Looping Logic
             widget.bind(SC.Widget.Events.READY, function() {
+                // Ensure volume is set correctly when the initial widget loads
+                widget.setVolume(volSlider.value);
+
                 widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(progress) {
                     let currentPosSeconds = progress.currentPosition / 1000;
 
