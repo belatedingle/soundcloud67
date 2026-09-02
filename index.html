@@ -4,209 +4,266 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Loop any section of a SoundCloud track from your browser.">
-  <meta name="theme-color" content="#0d0d0e">
+  <meta name="theme-color" content="#f6f6f3">
   <title>SoundCloud Looper</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0d0d0e;
-      --panel: #181819;
-      --border: #303033;
-      --text: #f7f7f8;
-      --muted: #a5a5aa;
-      --accent: #ff5c18;
-      --success: #66d49a;
-      --danger: #ff8a8a;
+      color-scheme: light;
+      --background: #f6f6f3;
+      --surface: #ffffff;
+      --text: #171717;
+      --muted: #707070;
+      --line: #e5e5e1;
+      --accent: #f4511e;
+      --success: #237a4b;
+      --error: #b42318;
     }
+
     * { box-sizing: border-box; }
+
     body {
       min-height: 100vh;
       margin: 0;
-      background: radial-gradient(circle at 50% -20%, #ff5c1833, transparent 34rem), var(--bg);
+      background: var(--background);
       color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     button, input { font: inherit; }
-    main { width: min(100% - 32px, 720px); margin: 0 auto; padding: 64px 0; }
-    .eyebrow {
-      margin: 0 0 12px;
-      color: var(--accent);
-      font-size: .78rem;
-      font-weight: 750;
-      letter-spacing: .14em;
-      text-transform: uppercase;
+
+    main {
+      width: min(100% - 32px, 620px);
+      margin: 0 auto;
+      padding: 64px 0;
     }
-    h1 {
-      max-width: 620px;
-      margin: 0;
-      font-size: clamp(2.4rem, 8vw, 4.6rem);
-      line-height: .98;
-      letter-spacing: -.055em;
+
+    header { margin-bottom: 28px; }
+
+    .brand {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -.045em;
     }
+
     .intro {
-      max-width: 540px;
-      margin: 20px 0 32px;
+      margin: 0;
       color: var(--muted);
-      font-size: 1.05rem;
-      line-height: 1.65;
+      line-height: 1.55;
     }
-    .browser-note {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 24px;
-      padding: 14px 16px;
-      border: 1px solid #ff5c1847;
-      border-radius: 14px;
-      background: #ff5c1814;
-      color: #ffd5c3;
-      font-size: .9rem;
-      line-height: 1.5;
+
+    .notice {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: .84rem;
     }
-    .browser-note strong { color: #fff; }
-    .note-icon { flex: 0 0 auto; color: var(--accent); }
+
+    .notice::before {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin: 0 8px 2px 0;
+      border-radius: 50%;
+      background: var(--accent);
+      content: "";
+    }
+
     .panel {
       overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: #181819eb;
-      box-shadow: 0 24px 70px #00000057;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
     }
-    .section { padding: 24px; }
-    .section + .section { border-top: 1px solid var(--border); }
-    .section-heading { margin: 0 0 6px; font-size: 1rem; letter-spacing: -.01em; }
-    .section-copy { margin: 0 0 18px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
-    .track-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-    .field-label {
-      display: block;
-      margin-bottom: 8px;
-      color: #d7d7da;
+
+    section { padding: 22px; }
+    section + section { border-top: 1px solid var(--line); }
+
+    h2 {
+      margin: 0 0 16px;
       font-size: .82rem;
       font-weight: 650;
+      letter-spacing: .02em;
+      text-transform: uppercase;
     }
-    input[type="url"], input[type="number"] {
+
+    .track-form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    input[type="url"],
+    input[type="number"] {
       width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
       outline: none;
-      background: #101011;
+      background: #fafaf8;
       color: var(--text);
-      transition: border-color 150ms ease, box-shadow 150ms ease;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
     }
-    input[type="url"] { min-width: 0; padding: 12px 14px; }
-    input[type="number"] { padding: 11px 40px 11px 12px; appearance: textfield; }
+
+    input[type="url"] { padding: 11px 12px; }
+    input[type="number"] { padding: 10px 38px 10px 11px; appearance: textfield; }
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { margin: 0; appearance: none; }
+    input::placeholder { color: #aaa; }
+
     input:focus-visible, button:focus-visible {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px #ff5c1833;
+      box-shadow: 0 0 0 3px #f4511e1f;
     }
-    input::placeholder { color: #6f6f74; }
+
     button {
       border: 0;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: 750;
-      transition: background-color 150ms ease, transform 150ms ease;
+      font-weight: 650;
     }
-    button:active { transform: translateY(1px); }
-    button:disabled { cursor: wait; opacity: .7; }
-    .primary-button { padding: 12px 18px; background: var(--accent); color: #fff; }
-    .primary-button:hover { background: #ff7138; }
-    .loop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    button:disabled { cursor: wait; opacity: .65; }
+
+    .primary-button {
+      padding: 11px 16px;
+      background: var(--text);
+      color: #fff;
+      transition: background 140ms ease;
+    }
+
+    .primary-button:hover { background: #333; }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
     .time-field { position: relative; }
+
     .unit {
       position: absolute;
       top: 50%;
-      right: 12px;
-      color: #76767c;
-      font-size: .76rem;
+      right: 10px;
+      color: #999;
+      font-size: .72rem;
       pointer-events: none;
       transform: translateY(-50%);
     }
-    .volume-row { display: grid; grid-template-columns: 1fr 48px; gap: 14px; align-items: center; }
+
+    .loop-footer {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .status {
+      min-height: 1.3em;
+      margin: 0;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .status[data-type="success"] { color: var(--success); }
+    .status[data-type="error"] { color: var(--error); }
+
+    .volume-row {
+      display: grid;
+      grid-template-columns: 1fr 42px;
+      gap: 12px;
+      align-items: center;
+    }
+
     input[type="range"] {
       width: 100%;
-      height: 4px;
+      height: 3px;
       margin: 8px 0;
       appearance: none;
-      border-radius: 999px;
+      border-radius: 99px;
       cursor: pointer;
     }
+
     input[type="range"]::-webkit-slider-thumb {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       appearance: none;
-      border: 3px solid var(--panel);
+      border: 2px solid var(--surface);
       border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 5px #00000073;
+      background: var(--text);
+      box-shadow: 0 0 0 1px #d7d7d2;
     }
+
     input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border: 3px solid var(--panel);
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--surface);
       border-radius: 50%;
-      background: #fff;
+      background: var(--text);
     }
-    .volume-display { color: #d7d7da; font-variant-numeric: tabular-nums; text-align: right; }
-    .loop-action { display: flex; gap: 16px; align-items: center; margin-top: 20px; }
-    .status { min-height: 1.4em; margin: 0; color: var(--muted); font-size: .85rem; }
-    .status[data-type="success"] { color: var(--success); }
-    .status[data-type="error"] { color: var(--danger); }
-    .player-shell {
-      margin-top: 16px;
+
+    output { color: var(--muted); font-size: .8rem; text-align: right; }
+
+    .player {
+      margin-top: 12px;
       overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #202022;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
       line-height: 0;
     }
+
     iframe { display: block; width: 100%; height: 166px; border: 0; }
-    footer { margin-top: 22px; color: #717176; font-size: .78rem; text-align: center; }
     [hidden] { display: none !important; }
-    @media (max-width: 580px) {
-      main { width: min(100% - 24px, 720px); padding: 36px 0; }
-      .intro { margin-bottom: 24px; }
-      .section { padding: 20px; }
-      .track-form, .loop-grid { grid-template-columns: 1fr; }
-      .track-form .primary-button { width: 100%; }
-      .loop-action { align-items: stretch; flex-direction: column; }
-      .loop-action .primary-button { order: 2; width: 100%; }
+
+    @media (max-width: 520px) {
+      main { width: min(100% - 24px, 620px); padding: 36px 0; }
+      .track-form, .time-grid { grid-template-columns: 1fr; }
+      .track-form button { width: 100%; }
+      .loop-footer { align-items: stretch; flex-direction: column; }
+      .loop-footer button { order: 2; width: 100%; }
     }
+
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+      * { transition: none !important; }
     }
   </style>
 </head>
 <body>
   <main>
-    <p class="eyebrow">SoundCloud Looper</p>
-    <h1>Your favorite part, on repeat.</h1>
-    <p class="intro">Paste a SoundCloud link, choose the exact section you want, and keep it looping while you listen.</p>
-
-    <aside class="browser-note" aria-label="Browser listening tip">
-      <span class="note-icon" aria-hidden="true">●</span>
-      <span><strong>Listen here for an ad-free loop.</strong> The SoundCloud phone app can interrupt playback with ads, so keep this page open in your browser.</span>
-    </aside>
+    <header>
+      <h1 class="brand">SoundCloud Looper</h1>
+      <p class="intro">Pick a track. Set a section. Keep it playing.</p>
+      <p class="notice">Use the browser for ad-free looping; the phone app may play ads.</p>
+    </header>
 
     <div class="panel">
-      <section class="section" aria-labelledby="track-heading">
-        <h2 class="section-heading" id="track-heading">Choose a track</h2>
-        <p class="section-copy">Copy the URL from any public SoundCloud track.</p>
+      <section aria-labelledby="track-heading">
+        <h2 id="track-heading">Track</h2>
         <form class="track-form" id="trackForm" novalidate>
           <label for="trackUrl" hidden>SoundCloud track URL</label>
-          <input type="url" id="trackUrl" placeholder="https://soundcloud.com/artist/track" aria-describedby="statusMessage" required>
-          <button class="primary-button" id="loadTrackBtn" type="submit">Load track</button>
+          <input type="url" id="trackUrl" placeholder="Paste a SoundCloud link" aria-describedby="statusMessage" required>
+          <button class="primary-button" id="loadTrackBtn" type="submit">Load</button>
         </form>
       </section>
 
-      <section class="section" aria-labelledby="loop-heading">
-        <h2 class="section-heading" id="loop-heading">Set the loop</h2>
-        <p class="section-copy">Enter a start and end time, then apply the loop.</p>
-        <div class="loop-grid">
+      <section aria-labelledby="loop-heading">
+        <h2 id="loop-heading">Loop</h2>
+        <div class="time-grid">
           <div>
-            <span class="field-label" id="start-label">Start time</span>
+            <span class="label" id="start-label">Start</span>
             <div class="time-row" role="group" aria-labelledby="start-label">
               <div class="time-field">
                 <input type="number" id="startMin" value="0" min="0" inputmode="numeric" aria-label="Start minutes">
@@ -218,8 +275,9 @@
               </div>
             </div>
           </div>
+
           <div>
-            <span class="field-label" id="end-label">End time</span>
+            <span class="label" id="end-label">End</span>
             <div class="time-row" role="group" aria-labelledby="end-label">
               <div class="time-field">
                 <input type="number" id="endMin" value="0" min="0" inputmode="numeric" aria-label="End minutes">
@@ -232,25 +290,25 @@
             </div>
           </div>
         </div>
-        <div class="loop-action">
-          <button class="primary-button" id="updateLoopBtn" type="button">Apply loop</button>
+
+        <div class="loop-footer">
+          <button class="primary-button" id="updateLoopBtn" type="button">Apply</button>
           <p class="status" id="statusMessage" role="status" aria-live="polite"></p>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="volume-heading">
-        <h2 class="section-heading" id="volume-heading">Volume</h2>
+      <section aria-labelledby="volume-heading">
+        <h2 id="volume-heading">Volume</h2>
         <div class="volume-row">
           <input type="range" id="volumeSlider" min="0" max="100" value="100" aria-label="Player volume">
-          <output id="volumeDisplay" class="volume-display" for="volumeSlider">100%</output>
+          <output id="volumeDisplay" for="volumeSlider">100%</output>
         </div>
       </section>
     </div>
 
-    <div class="player-shell">
-      <iframe id="sc-widget" title="SoundCloud player" scrolling="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/293&amp;color=%23ff5c18"></iframe>
+    <div class="player">
+      <iframe id="sc-widget" title="SoundCloud player" scrolling="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/293&amp;color=%23f4511e"></iframe>
     </div>
-    <footer>Powered by the SoundCloud browser player.</footer>
   </main>
 
   <script src="https://w.soundcloud.com/player/api.js"></script>
@@ -293,7 +351,7 @@
 
       function updateSliderFill() {
         const value = Number(volSlider.value);
-        volSlider.style.background = `linear-gradient(to right, var(--accent) 0 ${value}%, #3c3c40 ${value}% 100%)`;
+        volSlider.style.background = `linear-gradient(to right, var(--text) 0 ${value}%, #deded9 ${value}% 100%)`;
       }
 
       let loopStart = getTotalSeconds('startMin', 'startSec');
@@ -308,22 +366,24 @@
       trackForm.addEventListener('submit', function (event) {
         event.preventDefault();
         const url = urlInput.value.trim();
+
         if (!isSoundCloudUrl(url)) {
-          setStatus('Enter a valid SoundCloud track link.', 'error');
+          setStatus('Enter a valid SoundCloud link.', 'error');
           urlInput.focus();
           return;
         }
+
         loadBtn.disabled = true;
         loadBtn.textContent = 'Loading…';
-        setStatus('Loading track…');
+        setStatus('Loading…');
         widget.load(url, {
           auto_play: false,
-          color: '#ff5c18',
+          color: '#f4511e',
           callback: function () {
             widget.setVolume(volSlider.value);
             loadBtn.disabled = false;
-            loadBtn.textContent = 'Load track';
-            setStatus('Track ready. Press play below.', 'success');
+            loadBtn.textContent = 'Load';
+            setStatus('Ready to play.', 'success');
           }
         });
       });
@@ -331,14 +391,16 @@
       updateBtn.addEventListener('click', function () {
         const nextStart = getTotalSeconds('startMin', 'startSec');
         const nextEnd = getTotalSeconds('endMin', 'endSec');
+
         if (nextEnd <= nextStart) {
-          setStatus('End time must be later than start time.', 'error');
+          setStatus('End must be later than start.', 'error');
           return;
         }
+
         loopStart = nextStart;
         loopEnd = nextEnd;
         widget.seekTo(loopStart * 1000);
-        setStatus(`Looping ${formatTime(loopStart)}–${formatTime(loopEnd)}.`, 'success');
+        setStatus(`${formatTime(loopStart)}–${formatTime(loopEnd)}`, 'success');
       });
 
       widget.bind(SC.Widget.Events.READY, function () {
